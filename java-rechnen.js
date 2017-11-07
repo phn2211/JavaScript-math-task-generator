@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="de-DE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="font-awesome.min.css">
+
+<title>Matheaufgaben</title>
+<style>
+
+#box {
+	width:380px;
+}
+#configuration {
+	width: 100%;
+	padding: 10px 0;
+	text-align: center;
+	background-color: cadetblue;
+	margin-top: 10px;	
+}
+
+.h2 {
+	font-size:30px;
+}
+
+.fadeInAndOut {
+	padding-left: 100px;
+	-webkit-animation: fadeinout 4s linear forwards;
+	animation: fadeinout 4s linear forwards;
+}
+
+@-webkit-keyframes fadeinout {
+  0%,100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+@keyframes fadeinout {
+  0%,100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+	.button-style {
+		height: 25px;
+		border-radius: 10px;
+		margin: 0 auto;
+		box-shadow: 5px 5px 2px #888888;
+		border: 1px solid #ff8c00;
+	}
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script>
+
+var richtig = 0, falsch = 0, last_erg = '';
+var plusaufgaben = 0;
+var minusaufgaben = 0;
+var multiaufgaben = 0;
+var diviaufgaben = 0;
+
+function showconfig() {
+    var x = document.getElementById("configuration");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+	var user = ''
+    for (var i = 0; i < 2; i++) {
+		if(document.userdata.user[i].checked) {
+			user = (document.userdata.user[i].value);
+			break;
+		}
+    }
+	document.getElementById("showuser").innerHTML = user;
+} 
+ 
+function hilfe() {
+	/* show result in  red */
+	document.getElementById("erg-output").style.color = "red";
+	/* Using Help Button is like a not solved task*/
+	falsch++;
+	document.getElementById("falsch").innerHTML = falsch;
+	/* Reset Inputfield */
+	document.ergebnis.ergebnis_eingabe.value ="";
+	/* neue  Aufgabe nach 1,5 Sekunden */
+	alert(erg);
+	aufgabe_erstellen();
+}
+  
+function sleep(milliseconds) {
+	var start = new Date().getTime();
+	for (var i = 0; i < 1e7; i++) {
+		if ((new Date().getTime() - start) > milliseconds){
+		break;
+		}
+	}
+}
+  
+function compare () {
+	/* compare entered and calculated value */
+	var erg_eingabe = (document.ergebnis.ergebnis_eingabe.value);
+  
+	if (erg == erg_eingabe) {
+		/* Reset input field */
+		document.ergebnis.ergebnis_eingabe.value ="";
+		/* increment richtig++ */
+		richtig++;
+		document.getElementById("visual").innerHTML = '<i class="fa fa-check fa-2x" aria-hidden="true"></i>';
+		/* show quantity correct tasks */
+		document.getElementById("richtig").innerHTML = richtig;
+		/* check rating */
+		rating(richtig);
+		/* nächste Aufgabe */
+		aufgabe_erstellen();
+    
+	} else {
+		falsch++;
+		document.getElementById("visual").innerHTML = '<i class="fa fa-times fa-2x" aria-hidden="true"></i>';
+		document.ergebnis.ergebnis_eingabe.value ="";
+		document.getElementById("falsch").innerHTML = falsch;
+		last_aufgabe = aufgabe;
+	}
+  
+}
+
+function rating(richtig) {
+    if (parseInt(richtig) >= 100) {
+      document.getElementById("rating").innerHTML = '<i class="fa fa-star fa-2x" aria-hidden="true"></i><i class="fa fa-star fa-2x" aria-hidden="true"></i><i class="fa fa-star fa-2x" aria-hidden="true"></i><i class="fa fa-star fa-2x" aria-hidden="true"></i><i class="fa fa-star fa-2x" aria-hidden="true"></i>';
+    } else if (parseInt(richtig) >= 80) {
+      document.getElementById("rating").innerHTML = '<i class="fa fa-star fa-2x" aria-hidden="true"></i><i class="fa fa-star fa-2x" aria-hidden="true"></i><i class="fa fa-star fa-2x" aria-hidden="true"></i><i class="fa fa-star fa-2x" aria-hidden="true"></i>';
+    } else if (parseInt(richtig) >= 60) { 
+      document.getElementById("rating").innerHTML = '<i class="fa fa-star fa-2x" aria-hidden="true"></i><i class="fa fa-star fa-2x" aria-hidden="true"></i><i class="fa fa-star fa-2x" aria-hidden="true"></i>';
+    } else if (parseInt(richtig) >= 40) {
+      document.getElementById("rating").innerHTML = '<i class="fa fa-star fa-2x" aria-hidden="true"></i><i class="fa fa-star fa-2x" aria-hidden="true"></i>';
+    } else if (parseInt(richtig) >= 20) {
+      document.getElementById("rating").innerHTML = '<i class="fa fa-star fa-2x" aria-hidden="true"></i>';  
+    } 
+}
+
+function define_min() {
+	var zahlenraum1 = parseInt(document.zahlenraum.minimal.value); 
+	document.getElementById('min-output').innerHTML = zahlenraum1;
+	aufgabe_erstellen();
+}
+
+function define_max() {	
+	var zahlenraum2 = parseInt(document.zahlenraum.maximal.value); 
+	document.getElementById('max-output').innerHTML = zahlenraum2;	
+	aufgabe_erstellen();
+}
+
+function number_random(min,max) {
+	return Math.floor(Math.random() * (max - min +1)) + min;
+}
+  
+function aufgabe_erstellen() {
+
+	/* show result in white */ 
+	document.getElementById("erg-output").style.color = "white";
+  
+	/* if input empty create new task */
+	if(document.ergebnis.ergebnis_eingabe.value == '') {
+	
+	var zahlenraum1 = parseInt(document.zahlenraum.minimal.value); 
+	var zahlenraum2 = parseInt(document.zahlenraum.maximal.value); 
+	
+	zahl1 = number_random(1,zahlenraum1);
+	zahl2 = number_random(1,zahlenraum2);
+	console.log(zahl1 + ' ' + zahl2);
+	
+	
+    // zahl1 = Math.floor(Math.random() * (max - min +1)) + min;
+    // zahl2 = Math.floor(Math.random() * (max - min +1)) + min;
+
+	/* check which operation is activeted */
+    var op ='';
+    for (var i = 0; i < 4; i++) {
+		if(document.operatoren.op[i].checked) {
+			op = (document.operatoren.op[i].value);
+			break;
+		}
+    }
+
+	/* Create Task, especially if num2 > num1 change order for "minus" 
+      and create a String to show in div-element */
+	if (op=='-') {
+		/* if zahl2 > zahl1 change Summanden */
+		if (zahl2 > zahl1) {
+			var aufgabe = zahl2 + ' ' + op + ' ' + zahl1;
+		} else {
+			/* if not, Aufgabe as usual */
+			var aufgabe = zahl1 + ' ' + op + ' ' + zahl2;
+		}
+	} else { 
+		/* if not "-" */
+		var aufgabe = zahl1 + ' ' + op + ' ' + zahl2;
+	};
+	
+	eval(aufgabe);
+    
+	/* Calc results */
+	switch (op) {
+		case '+': erg = zahl1 + zahl2; plusaufgaben++; document.getElementById("add").innerHTML = plusaufgaben;
+		break;
+		case '-': if (zahl2 > zahl1) { erg = zahl2 - zahl1;} else { erg = zahl1 - zahl2;}; minusaufgaben++; document.getElementById("sub").innerHTML = minusaufgaben;
+		break;
+		case '*': erg = zahl1 * zahl2; multiaufgaben++; document.getElementById("mul").innerHTML = multiaufgaben;
+		break;
+		case '/': erg = zahl1 / zahl2; diviaufgaben++; document.getElementById("divi").innerHTML = diviaufgaben;
+		break;
+		default:  erg = '';
+	}
+   
+	/* Show task and result (in white) */
+	document.getElementById("aufgabe").innerHTML = aufgabe + " = ";
+	document.getElementById("erg-output").innerHTML = erg;
+
+	/* if inputfield not empty call function "compare" */
+	} else {
+	compare();
+	}
+}
+
+</script>
+</head>
+<body>
+<div id="box">
+	<table><tr><td><button class="button-style" onclick="showconfig()">Einstellungen</button><td style="color:green;padding-left:20px;" id="showuser"></td><td style="padding-left:10px;color:orange;" id="rating"></td></tr></table>
+	<div id="configuration">
+	<form name="userdata">
+		<input type="radio" name="user" value="Ilias">Ilias</input>
+		<input type="radio" name="user" value="Kilian">Kilian</input>  
+	</form>
+		<form name="operatoren" onchange="aufgabe_erstellen()">
+		<input type="radio" name="op" value="-">Minus</input>
+		<input type="radio" name="op" value="+">Plus</input>
+		<input type="radio" name="op" value="*">Multiplikation</input>
+		<input type="radio" name="op" value="/">Division</input>
+	</form>
+	<form name="zahlenraum">
+		<table><tr><td>
+		<input id="minimal" type="range" min="0" max="500" value="200" step="10" onchange="define_min()" ></input></td><td id="min-output">
+		</td></tr>
+		<tr><td>
+		<input id="maximal" type="range" min="0" max="1000" value="500" step="10" onchange="define_max()"></input></td><td id="max-output">
+		</td></tr>
+		</table>
+	</form>
+
+	</div>
+<hr>
+	<table>
+		<tr><td id="aufgabe" class="h2"></td><td id="erg-output"></td></tr>
+	</table>		
+	<div class=""><table><tr><td>
+		<form name="ergebnis"> 
+			<input type="number" name="ergebnis_eingabe" style="height:40px;font-size:30px" size="10">
+		</form></td><td style="align:right" id="visual"></td></tr>
+		</table>
+		<button style="height:50px;font-size:30px;margin: 0 auto;background:cadetblue;" onclick="compare()">Check</button>
+	</div>
+<hr>
+	<div>
+		<table>
+		<tr><td>richtig: </td><td style="color: green" id="richtig"> 0 </td><td>falsch: </td><td style="color:red;" id="falsch">0</td></tr></table>
+		<table>
+		<tr><td>+ </td><td id="add"></td><td> | - </td><td id="sub"></td><td> | * </td><td id="mul"></td><td> | / </td><td id="divi"></td></tr>
+		</table>
+	</div>
+	<button class="button-style" onclick="hilfe()">Hilfe?</button>
+</div>
+</body>
+</html>
